@@ -4,7 +4,8 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 class NetworkCall {
-  static String get baseUrl => '192.168.1.6:4000';
+  static String get baseUrl => '34.126.116.76:4000';
+  // static String get baseUrl => '192.168.0.123:4000';
 
   // Get Request with optional jwt token
   Future<Map<String, dynamic>?> get({

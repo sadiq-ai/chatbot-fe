@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -22,6 +24,7 @@ class Chatapp extends StatefulWidget {
 class _ChatappState extends State<Chatapp> {
   final TextEditingController _controller = TextEditingController();
   final AudioRecorder record = AudioRecorder();
+  final ScrollController _scrollController = ScrollController();
   Widget _prefixIcon = const Icon(Icons.emoji_emotions);
   Widget _suffixIcon = const Icon(Icons.mic);
   bool _isRecording = false;
@@ -117,6 +120,7 @@ class _ChatappState extends State<Chatapp> {
       ),
     );
     setState(() => _isRecording = false);
+    _scrollToBottom();
   }
 
   void sendMessageToAI({String? base64Audio, String? text}) async {
@@ -130,6 +134,14 @@ class _ChatappState extends State<Chatapp> {
     if (response == null) return;
     messages.add(
       ChatModel(
+        author: 'user',
+        message: response['user'],
+        timestamp: DateTime.now(),
+        type: MessageType.text,
+      ),
+    );
+    messages.add(
+      ChatModel(
         author: 'ai-chatbot',
         message: response['data'],
         timestamp: DateTime.now(),
@@ -137,6 +149,15 @@ class _ChatappState extends State<Chatapp> {
       ),
     );
     setState(() {});
+    _scrollToBottom();
+  }
+
+  void _scrollToBottom() {
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
   }
 
   @override
@@ -149,6 +170,7 @@ class _ChatappState extends State<Chatapp> {
   @override
   Widget build(BuildContext context) {
     print('recording: $_isRecording');
+    // Size screen = MediaQuery.of(context).size;
 
     if (_controller.text.isNotEmpty && !_isRecording) {
       _suffixIcon = const Icon(Icons.send);
@@ -161,10 +183,12 @@ class _ChatappState extends State<Chatapp> {
         title: const Text('Chat App'),
       ),
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
           Expanded(
+            flex: 8,
             child: ListView.separated(
+              controller: _scrollController,
               itemCount: messages.length,
               separatorBuilder: (BuildContext context, int index) {
                 return const SizedBox(height: 10);
@@ -179,26 +203,47 @@ class _ChatappState extends State<Chatapp> {
               },
             ),
           ),
-          TextField(
-            controller: _controller,
-            decoration: InputDecoration(
-              hintText: 'Type a message',
-              prefixIcon: _prefixIcon,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(50),
-              ),
-              suffixIcon: GestureDetector(
-                onLongPress: _startRecording,
-                onLongPressUp: _stopRecording,
-                onTap: onMessageSend,
-                child: Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: _suffixIcon,
+          // Tap to speak Button, round elevaed
+          Expanded(
+            flex: 2,
+            child: GestureDetector(
+              onLongPress: _startRecording,
+              onLongPressUp: _stopRecording,
+              child: ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      _isRecording ? Colors.orange : Colors.orange[100],
+                  foregroundColor: _isRecording ? Colors.white : Colors.orange,
+                  shape: const CircleBorder(),
+                  padding: const EdgeInsets.all(20),
+                ),
+                child: const Icon(
+                  Icons.mic,
+                  size: 48,
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 20),
+          // TextField(
+          //   controller: _controller,
+          //   decoration: InputDecoration(
+          //     hintText: 'Type a message',
+          //     prefixIcon: _prefixIcon,
+          //     border: OutlineInputBorder(
+          //       borderRadius: BorderRadius.circular(50),
+          //     ),
+          //     suffixIcon: GestureDetector(
+          //       onLongPress: _startRecording,
+          //       onLongPressUp: _stopRecording,
+          //       onTap: onMessageSend,
+          //       child: Padding(
+          //         padding: const EdgeInsets.all(10),
+          //         child: _suffixIcon,
+          //       ),
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );
@@ -217,6 +262,7 @@ class _ChatappState extends State<Chatapp> {
       sendMessageToAI(text: _controller.text);
       _controller.clear();
       setState(() {});
+      _scrollToBottom();
     }
   }
 }
