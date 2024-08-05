@@ -45,6 +45,7 @@ dependencies:
   record: ^5.1.2
   audioplayers: ^6.0.0
   expandable_richtext: ^1.0.6
+  url_launcher: ^6.3.0
 
 dev_dependencies:
   flutter_test:

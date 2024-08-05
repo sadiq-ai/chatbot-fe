@@ -200,7 +200,7 @@ class _ChatappState extends State<Chatapp> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chat App'),
+        title: const Text('E-commerce Chatbot'),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -214,7 +214,8 @@ class _ChatappState extends State<Chatapp> {
                 return const SizedBox(height: 10);
               },
               itemBuilder: (BuildContext context, int index) {
-                return Align(
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
                   alignment: messages[index].author == 'user'
                       ? Alignment.centerRight
                       : Alignment.centerLeft,
@@ -314,12 +315,13 @@ class ChatMessage extends StatelessWidget {
               toggleColor: Colors.grey,
             ),
             Container(
-              margin: const EdgeInsets.only(top: 15),
+              margin: const EdgeInsets.only(top: 5),
               child: Text(
                 Compute.dateFormat(message.timestamp),
                 style: const TextStyle(
                   color: Colors.grey,
                   height: 0,
+                  fontSize: 12,
                 ),
               ),
             ),
@@ -342,14 +344,19 @@ class ChatMessage extends StatelessWidget {
       );
     }
     return Container(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       constraints: BoxConstraints(
         maxWidth: MediaQuery.of(context).size.width * 0.8,
       ),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey),
-        borderRadius: BorderRadius.circular(10),
-        color: isMyMessage ? Colors.blue[200] : Colors.white,
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(isMyMessage ? 10 : 0),
+          bottomRight: Radius.circular(isMyMessage ? 0 : 10),
+          topLeft: const Radius.circular(10),
+          topRight: const Radius.circular(10),
+        ),
+        color: isMyMessage ? Colors.orange[200] : Colors.white,
       ),
       child: messageWidget,
     );
