@@ -46,7 +46,7 @@ class _VoiceMessagePlayerState extends State<VoiceMessagePlayer> {
     await _player!.setSourceBytes(_data!, mimeType: 'audio/wav');
     _source = _player!.source;
     _duration = await _player?.getDuration() ?? Duration.zero;
-
+    setState(() {});
     _player!.onDurationChanged.listen((Duration newDuration) {
       setState(() {
         _duration = newDuration;
@@ -83,7 +83,7 @@ class _VoiceMessagePlayerState extends State<VoiceMessagePlayer> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(right: 5.0),
+      padding: const EdgeInsets.only(top: 5, right: 5.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: <Widget>[
@@ -100,6 +100,8 @@ class _VoiceMessagePlayerState extends State<VoiceMessagePlayer> {
                   value: _position.inMilliseconds.toDouble(),
                   min: 0.0,
                   max: _duration.inMilliseconds.toDouble(),
+                  thumbColor: Colors.orange,
+                  activeColor: Colors.orange,
                   onChanged: (double value) {
                     _player!.seek(Duration(milliseconds: value.toInt()));
                   },
@@ -108,11 +110,15 @@ class _VoiceMessagePlayerState extends State<VoiceMessagePlayer> {
               Text(formatDuration(_duration)),
             ],
           ),
-          Text(
-            Compute.dateFormat(widget.timestamp ?? DateTime.now()),
-            style: const TextStyle(
-              color: Colors.grey,
-              height: 0,
+          Padding(
+            padding: const EdgeInsets.only(bottom: 5.0),
+            child: Text(
+              Compute.dateFormat(widget.timestamp ?? DateTime.now()),
+              style: const TextStyle(
+                color: Colors.grey,
+                height: 0,
+                fontSize: 12,
+              ),
             ),
           ),
         ],
