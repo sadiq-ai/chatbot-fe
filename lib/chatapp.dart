@@ -9,8 +9,10 @@ import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 
 import 'audio_player.dart';
+import 'cards.dart';
 import 'chat_model.dart';
 import 'network.dart';
+import 'product_model.dart';
 import 'text_widget.dart';
 import 'utils.dart';
 
@@ -30,6 +32,7 @@ class _ChatappState extends State<Chatapp> {
   bool _isRecording = false;
   DateTime? _recordingStart;
   Timer? _timer;
+  bool _aiLoading = false;
 
   List<ChatModel> messages = <ChatModel>[];
 
@@ -129,8 +132,10 @@ class _ChatappState extends State<Chatapp> {
       'text': text,
     };
     Map<String, dynamic>? response;
+    setState(() => _aiLoading = true);
     response = await NetworkCall().post(route: '/talk-to-ai', payload: payload);
     print('Api response: $response');
+    setState(() => _aiLoading = false);
     if (response == null) return;
     messages.add(
       ChatModel(
@@ -148,6 +153,21 @@ class _ChatappState extends State<Chatapp> {
         type: MessageType.text,
       ),
     );
+    List<dynamic> products = response['product_search'];
+    if (products.isNotEmpty) {
+      for (dynamic product in products) {
+        ProductModel prod = ProductModel.fromJson(product);
+        messages.add(
+          ChatModel(
+            author: 'ai-chatbot',
+            message: '',
+            timestamp: DateTime.now(),
+            type: MessageType.product,
+            product: prod,
+          ),
+        );
+      }
+    }
     setState(() {});
     _scrollToBottom();
   }
@@ -202,6 +222,12 @@ class _ChatappState extends State<Chatapp> {
                 );
               },
             ),
+          ),
+
+          Container(
+            padding: const EdgeInsets.only(left: 10),
+            alignment: Alignment.centerLeft,
+            child: _aiLoading ? const Text('AI is thinking...') : null,
           ),
           // Tap to speak Button, round elevaed
           Expanded(
@@ -283,7 +309,7 @@ class ChatMessage extends StatelessWidget {
           children: <Widget>[
             SadiqExpandableText(
               text: message.message,
-              maxLines: 5,
+              maxLines: 10,
               color: Colors.black,
               toggleColor: Colors.grey,
             ),
@@ -306,6 +332,13 @@ class ChatMessage extends StatelessWidget {
       messageWidget = VoiceMessagePlayer(
         base64Audio: message.message,
         timestamp: message.timestamp,
+      );
+    }
+
+    if (message.type == MessageType.product) {
+      messageWidget = NewProductCard(
+        product: message.product!,
+        elevation: 0,
       );
     }
     return Container(
