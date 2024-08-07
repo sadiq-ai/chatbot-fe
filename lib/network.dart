@@ -23,7 +23,7 @@ class NetworkCall {
     }
     try {
       http.Response response = await http.get(
-        Uri.http(baseUrl, route, paramsMap),
+        Uri.https(baseUrl, route, paramsMap),
         headers: <String, String>{
           'Content-Type': 'application/json',
           HttpHeaders.authorizationHeader: 'Bearer $jwt',
@@ -47,7 +47,7 @@ class NetworkCall {
     print('API-Call: POST $route');
     try {
       http.Response response = await http.post(
-        Uri.http(baseUrl, route),
+        Uri.https(baseUrl, route),
         headers: <String, String>{
           'Content-Type': 'application/json',
           HttpHeaders.authorizationHeader: 'Bearer $jwt',
@@ -72,7 +72,7 @@ class NetworkCall {
     print('API-Call: DELETE $route');
     try {
       http.Response response = await http.delete(
-        Uri.http(baseUrl, route),
+        Uri.https(baseUrl, route),
         headers: <String, String>{
           'Content-Type': 'application/json',
           HttpHeaders.authorizationHeader: 'Bearer $jwt',
