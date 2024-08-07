@@ -3,7 +3,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'utils.dart';
+import 'chatapp.dart';
 
 // import 'constants.dart';
 
@@ -91,36 +91,37 @@ class _VoiceMessagePlayerState extends State<VoiceMessagePlayer> {
             children: <Widget>[
               IconButton(
                 icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow),
+                color: Colors.white,
                 onPressed: play,
               ),
-              Text(formatDuration(_position)),
+              Text(
+                formatDuration(_position),
+                style: const TextStyle(color: Colors.white),
+              ),
               // Controller line for audio
               Expanded(
                 child: Slider(
                   value: _position.inMilliseconds.toDouble(),
                   min: 0.0,
                   max: _duration.inMilliseconds.toDouble(),
-                  thumbColor: Colors.orange,
-                  activeColor: Colors.orange,
+                  thumbColor: Colors.blue[900],
+                  activeColor: Colors.blue,
                   onChanged: (double value) {
                     _player!.seek(Duration(milliseconds: value.toInt()));
                   },
                 ),
               ),
-              Text(formatDuration(_duration)),
+              Text(
+                formatDuration(_duration),
+                style: const TextStyle(color: Colors.white),
+              ),
             ],
           ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 5.0),
-            child: Text(
-              Compute.dateFormat(widget.timestamp ?? DateTime.now()),
-              style: const TextStyle(
-                color: Colors.grey,
-                height: 0,
-                fontSize: 12,
-              ),
-            ),
+          TimeWidget(
+            timestamp: widget.timestamp ?? DateTime.now(),
+            isMyMessage: true,
           ),
+          const SizedBox(height: 5),
         ],
       ),
     );

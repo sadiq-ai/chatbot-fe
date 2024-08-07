@@ -6,7 +6,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:progress_indicators/progress_indicators.dart';
 import 'package:record/record.dart';
+import 'package:ripple_wave/ripple_wave.dart';
 
 import 'audio_player.dart';
 import 'cards.dart';
@@ -42,6 +44,22 @@ class _ChatappState extends State<Chatapp> {
     _controller.addListener(() {
       setState(() {});
     });
+    // Add first message after 1 second
+    Future<void>.delayed(const Duration(seconds: 1), addFirstMessage);
+  }
+
+  void addFirstMessage() {
+    messages.add(
+      ChatModel(
+        author: 'ai-chatbot',
+        message:
+            '👋 Hello, I am Support bot, your personal assistant. Ask me for any product recomendations or help you need.',
+        timestamp: DateTime.now(),
+        type: MessageType.text,
+        product: null,
+      ),
+    );
+    setState(() {});
   }
 
   Widget _buildPrefix(Duration? duration) {
@@ -78,6 +96,7 @@ class _ChatappState extends State<Chatapp> {
   }
 
   void _startRecording() async {
+    if (_isRecording) return _stopRecording();
     // Check and request permission if needed
     if (await record.hasPermission()) {
       _recordingStart = DateTime.now();
@@ -200,7 +219,33 @@ class _ChatappState extends State<Chatapp> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('E-commerce Chatbot'),
+        elevation: 5,
+        title: ListTile(
+          leading: Stack(
+            children: <Widget>[
+              CircleAvatar(
+                radius: 20,
+                backgroundColor: Colors.blue[700],
+                foregroundColor: Colors.white,
+                child: const Icon(Icons.support_agent),
+              ),
+              Positioned(
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  height: 12,
+                  width: 12,
+                  decoration: const BoxDecoration(
+                    color: Colors.green,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          title: const Text('Shopping Genie'),
+          subtitle: const Text('Online'),
+        ),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -214,12 +259,45 @@ class _ChatappState extends State<Chatapp> {
                 return const SizedBox(height: 10);
               },
               itemBuilder: (BuildContext context, int index) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  alignment: messages[index].author == 'user'
-                      ? Alignment.centerRight
-                      : Alignment.centerLeft,
-                  child: ChatMessage(message: messages[index]),
+                bool my = messages[index].author == 'user';
+                bool isMsgContinuation = index > 0 &&
+                    messages[index].author == messages[index - 1].author;
+                return Column(
+                  children: <Widget>[
+                    if (!isMsgContinuation)
+                      ListTile(
+                        leading: my
+                            ? null
+                            : CircleAvatar(
+                                radius: 15,
+                                backgroundColor: Colors.blue[700],
+                                foregroundColor: Colors.white,
+                                child: const Icon(Icons.support_agent),
+                              ),
+                        trailing: !my
+                            ? null
+                            : CircleAvatar(
+                                radius: 15,
+                                backgroundColor: Colors.transparent,
+                                foregroundColor: Colors.blue[700],
+                                child: const Icon(Icons.person),
+                              ),
+                        title: Align(
+                          alignment:
+                              my ? Alignment.centerRight : Alignment.centerLeft,
+                          child: Text(my ? 'Customer' : 'Shopping Genie'),
+                        ),
+                        titleTextStyle:
+                            const TextStyle(fontSize: 15, color: Colors.black),
+                      ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 30),
+                      // alignment: messages[index].author != 'user'
+                      //     ? Alignment.centerRight
+                      //     : Alignment.centerLeft,
+                      child: ChatMessage(message: messages[index]),
+                    ),
+                  ],
                 );
               },
             ),
@@ -228,28 +306,45 @@ class _ChatappState extends State<Chatapp> {
           Container(
             padding: const EdgeInsets.only(left: 10),
             alignment: Alignment.centerLeft,
-            child: _aiLoading ? const Text('AI is thinking...') : null,
+            child: _aiLoading
+                ? Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      const Text('AI is thinking '),
+                      JumpingDotsProgressIndicator(fontSize: 20),
+                    ],
+                  )
+                : null,
           ),
           // Tap to speak Button, round elevaed
           Expanded(
             flex: 2,
-            child: GestureDetector(
-              onLongPress: _startRecording,
-              onLongPressUp: _stopRecording,
-              child: ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      _isRecording ? Colors.orange : Colors.orange[100],
-                  foregroundColor: _isRecording ? Colors.white : Colors.orange,
-                  shape: const CircleBorder(),
-                  padding: const EdgeInsets.all(20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                ElevatedButton(
+                  onPressed: _startRecording,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        _isRecording ? Colors.blue[700] : Colors.blue[100],
+                    foregroundColor:
+                        _isRecording ? Colors.white : Colors.blue[700],
+                    shape: const CircleBorder(),
+                    padding: const EdgeInsets.all(20),
+                  ),
+                  child: _isRecording
+                      ? const RippleWave(
+                          color: Colors.blue,
+                          repeat: true,
+                          child: Icon(
+                            Icons.mic,
+                            size: 50,
+                            color: Colors.red,
+                          ),
+                        )
+                      : const Icon(Icons.mic, size: 48),
                 ),
-                child: const Icon(
-                  Icons.mic,
-                  size: 48,
-                ),
-              ),
+              ],
             ),
           ),
           // TextField(
@@ -311,19 +406,12 @@ class ChatMessage extends StatelessWidget {
             SadiqExpandableText(
               text: message.message,
               maxLines: 10,
-              color: Colors.black,
+              color: isMyMessage ? Colors.white : Colors.black,
               toggleColor: Colors.grey,
             ),
-            Container(
-              margin: const EdgeInsets.only(top: 5),
-              child: Text(
-                Compute.dateFormat(message.timestamp),
-                style: const TextStyle(
-                  color: Colors.grey,
-                  height: 0,
-                  fontSize: 12,
-                ),
-              ),
+            TimeWidget(
+              timestamp: message.timestamp,
+              isMyMessage: isMyMessage,
             ),
           ],
         ),
@@ -351,14 +439,71 @@ class ChatMessage extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey),
         borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(isMyMessage ? 10 : 0),
-          bottomRight: Radius.circular(isMyMessage ? 0 : 10),
-          topLeft: const Radius.circular(10),
-          topRight: const Radius.circular(10),
+          topLeft: Radius.circular(isMyMessage ? 20 : 5),
+          topRight: Radius.circular(isMyMessage ? 5 : 20),
+          bottomLeft: const Radius.circular(20),
+          bottomRight: const Radius.circular(20),
         ),
-        color: isMyMessage ? Colors.orange[200] : Colors.white,
+        color: isMyMessage ? Colors.blue[700] : Colors.white,
       ),
       child: messageWidget,
+    );
+  }
+}
+
+class TimeWidget extends StatelessWidget {
+  const TimeWidget({
+    super.key,
+    required this.timestamp,
+    required this.isMyMessage,
+  });
+
+  final DateTime timestamp;
+  final bool isMyMessage;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(top: 5),
+      child: Text(
+        Compute.dateFormat(timestamp),
+        style: TextStyle(
+          color: isMyMessage ? Colors.white : Colors.grey,
+          height: 0,
+          fontSize: 12,
+        ),
+      ),
+    );
+  }
+}
+
+class WaveWidget extends StatefulWidget {
+  const WaveWidget({super.key, required this.recorder});
+  final AudioRecorder recorder;
+  @override
+  State<WaveWidget> createState() => _WaveWidgetState();
+}
+
+class _WaveWidgetState extends State<WaveWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 100,
+      width: 100,
+      child: StreamBuilder<Amplitude>(
+        stream: widget.recorder.getAmplitude().asStream(),
+        builder: (BuildContext context, AsyncSnapshot<Amplitude> snapshot) {
+          if (snapshot.hasData) {
+            print('Amplitude: ${snapshot.data!.current}');
+            return LinearProgressIndicator(
+              value: snapshot.data!.current.abs() / 100,
+              backgroundColor: Colors.grey,
+              valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+            );
+          }
+          return const SizedBox();
+        },
+      ),
     );
   }
 }

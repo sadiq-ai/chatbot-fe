@@ -46,6 +46,8 @@ dependencies:
   audioplayers: ^6.0.0
   expandable_richtext: ^1.0.6
   url_launcher: ^6.3.0
+  progress_indicators: ^1.0.0
+  ripple_wave: ^0.1.4
 
 dev_dependencies:
   flutter_test:

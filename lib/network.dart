@@ -5,7 +5,8 @@ import 'package:http/http.dart' as http;
 
 class NetworkCall {
   static String get baseUrl => '34.126.116.76:4000';
-  // static String get baseUrl => '172.16.56.48:4000';
+  // static String get baseUrl => '172.16.86.107:4000';
+  // static String get baseUrl => '169.254.89.53:4000';
 
   // Get Request with optional jwt token
   Future<Map<String, dynamic>?> get({
@@ -22,7 +23,7 @@ class NetworkCall {
     }
     try {
       http.Response response = await http.get(
-        Uri.https(baseUrl, route, paramsMap),
+        Uri.http(baseUrl, route, paramsMap),
         headers: <String, String>{
           'Content-Type': 'application/json',
           HttpHeaders.authorizationHeader: 'Bearer $jwt',
@@ -46,7 +47,7 @@ class NetworkCall {
     print('API-Call: POST $route');
     try {
       http.Response response = await http.post(
-        Uri.https(baseUrl, route),
+        Uri.http(baseUrl, route),
         headers: <String, String>{
           'Content-Type': 'application/json',
           HttpHeaders.authorizationHeader: 'Bearer $jwt',
@@ -71,7 +72,7 @@ class NetworkCall {
     print('API-Call: DELETE $route');
     try {
       http.Response response = await http.delete(
-        Uri.https(baseUrl, route),
+        Uri.http(baseUrl, route),
         headers: <String, String>{
           'Content-Type': 'application/json',
           HttpHeaders.authorizationHeader: 'Bearer $jwt',
