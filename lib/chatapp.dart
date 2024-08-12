@@ -12,9 +12,9 @@ import 'package:ripple_wave/ripple_wave.dart';
 
 import 'audio_player.dart';
 import 'cards.dart';
-import 'chat_model.dart';
+import 'models/chat_model.dart';
 import 'network.dart';
-import 'product_model.dart';
+import 'models/product_model.dart';
 import 'text_widget.dart';
 import 'utils.dart';
 
@@ -53,7 +53,7 @@ class _ChatappState extends State<Chatapp> {
       ChatModel(
         author: 'ai-chatbot',
         message:
-            '👋 Hello, I am Support bot, your personal assistant. Ask me for any product recomendations or help you need.',
+            '👋 Hello, I am Shopping Genie, your personal assistant. Ask me for any product recomendations or help you need.',
         timestamp: DateTime.now(),
         type: MessageType.text,
         product: null,

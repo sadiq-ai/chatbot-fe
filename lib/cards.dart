@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'product_model.dart';
+import 'models/product_model.dart';
 
 class NewProductCard extends StatelessWidget {
   const NewProductCard({

@@ -54,7 +54,8 @@ class NetworkCall {
         },
         body: json.encode(payload),
       );
-      print('Api response: $response');
+      print('Api response: ${response.body}');
+      print(response.body);
       return json.decode(response.body);
     } catch (e) {
       print(e);
